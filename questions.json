@@ -1,0 +1,116 @@
+[
+  {
+    "variableName": "CBCL001",
+    "label": "How do you really feel?",
+    "text": "How do you _really_ feel?",
+    "response": {
+      "type": "singleChoice",
+      "alternatives": [
+        {
+          "value": "1",
+          "text": "Great"
+        },
+        {
+          "value": "2",
+          "text": "Not so great"
+        },
+        {
+          "value": "3",
+          "text": "Shitty"
+        }
+      ]
+    },
+    "condition": {
+      "left": [
+        "timepoint",
+        "1"
+      ],
+      "op": "AND",
+      "right": {
+        "left": [
+          "group",
+          "1"
+        ],
+        "op": "OR",
+        "right": [
+          "group",
+          "2"
+        ]
+      }
+    }
+  },
+  {
+    "variableName": "CBCL002",
+    "label": "Can you screeeaam out loud?",
+    "text": "Can you __screeeaam__ out loud?",
+    "response": {
+      "type": "singleChoice",
+      "alternatives": [
+        {
+          "value": "7",
+          "text": "You bet'cha!"
+        },
+        {
+          "value": "5",
+          "text": "I shout at the devil sometimes."
+        },
+        {
+          "value": "1",
+          "text": "It's more like squeaking..."
+        }
+      ]
+    }
+  },
+  {
+    "variableName": "CBCL003",
+    "label": "General behavior",
+    "text": "Are you generally...",
+    "response": {
+      "type": "multiChoice",
+      "alternatives": [
+        {
+          "value": "1",
+          "text": "...fightning for justice?"
+        },
+        {
+          "value": "2",
+          "text": "...testing out your new 3200 baud modem?"
+        },
+        {
+          "value": "3",
+          "text": "...bicycling over some hills?"
+        },
+        {
+          "value": "4",
+          "text": "...biting random people?"
+        },
+        {
+          "value": "5",
+          "text": "...sleeping in the park?"
+        },
+        {
+          "value": "9",
+          "text": "None of the above."
+        }
+      ]
+    }
+  }, 
+  {
+    "variableName": "CBCL004",
+    "label": "Fav. animal",
+    "text": "What is your _favorite_ animal?",
+    "response": {
+      "type": "textField",
+      "regex": "\\d*",
+      "posttext": "times"
+    }
+  },
+  {
+    "variableName": "CBCLINFO",
+    "label": "Infoscreen",
+    "text": "Do you think that I'm _crazy_? Out of my _mind_?\n\nDo you think that I creep out at night & sleep in a phonebooth?\n\n<img src=\"redBooth.jpg\" alt=\"missing image\">",
+    "response": {
+      "type": "info"
+    }
+  }
+]
