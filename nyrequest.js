@@ -11,7 +11,7 @@ function displayQuizItem(question) {
 		question.inputs = null;
 	}
 	else {
-		console.log(question.inputs);
+		console.log("Inputs: " + question.inputs);
 	}
 	displayHeader(question.text);
 
@@ -26,14 +26,9 @@ function displayQuizItem(question) {
 }
 
 function displayHeader(text) {
-	console.log("q: " + text);
 	var questionElem = document.getElementById("question");
-	//var textNode = document.createTextNode(text);
 	var converter = new Markdown.Converter();
-	console.log(converter);
 	var textNode = converter.makeHtml(text);
-
-	console.log(typeof(textNode) + ": " + textNode);
 	questionElem.innerHTML = textNode;
 }
 
@@ -70,10 +65,10 @@ function displayTextField(question) {
 	var textField = document.createElement("input");
 	textField.id = "textField";
 	textField.type = "textfield";
+	textField.size = "100";
 	answersElem.appendChild(textField);
 	var converter = new Markdown.Converter();
 	var textNode = converter.makeHtml(question.response.posttext);
-	console.log(typeof(textNode) + ": " + textNode);
 	answersElem.appendChild(document.createTextNode(" " + question.response.posttext));
 	if (question.inputs !== null) {
 		textField.value = question.inputs;
@@ -86,6 +81,14 @@ function displayTextField(question) {
 function nextQuestion() {
 	if (lock === true) {
 		return;
+	}
+	if (Questionnaire.currentQuestion().response.type === QuestionTypes.textField) { // && Questionnaire.currentQuestion().regex) {
+		var regExp = new RegExp(Questionnaire.currentQuestion().response.regex);
+		var matchResult = Questionnaire.currentQuestion().inputs.match(regExp);
+		console.log("Validation: " + matchResult);
+		if (matchResult && Questionnaire.currentQuestion().inputs === matchResult[0]) {
+			console.log("MATCH!!!");
+		}
 	}
 	if (Questionnaire.currentQuestion().inputs && Questionnaire.currentQuestion().inputs.length !== 0 && Questionnaire.currentQuestion() !== Questionnaire.lastQuestion()) {
 		displayQuizItem(Questionnaire.nextQuestion());
@@ -127,7 +130,6 @@ function currentAnswers() {
 
  	lock = true;
  	storeSelectedResponseAlternatives();
- 	console.log("currentAnswers: " + currentAnswers());
 
  	document.getElementById("next").disabled = false;
  	setTimeout(function() {
@@ -198,8 +200,6 @@ window.onkeyup = function(event) {
 	}
 
 	function leftArrowIsApplicable() {
-		console.log(document.getElementById("textField"));
-		console.log(document.activeElement);
 		return (responseType === "singleChoice" || responseType === "multiChoice" || responseType === "info") ||
 			(responseType === "textField" && document.getElementById("textField") !== document.activeElement);
 	};
@@ -210,7 +210,6 @@ window.onkeyup = function(event) {
 	};
 
 	function enterIsApplicable() {
-		console.log(document.activeElement);
 		return (document.activeElement.type !== "button");
 	};
 
@@ -258,13 +257,19 @@ var Questionnaire = (function() {
 	};
 })();
 
+var QuestionTypes = {
+	singleChoice: "singleChoice",
+	multiChoice: "multiChoice",
+	textField: "textField",
+	info: "info"
+};
+
 
 // Init
 $(document).ready(function () {
 	//window.onbeforeunload = function() { return "You work will be lost."; };
 	$.getJSON("http://localhost:8000/questions.json", function(data) {
 		console.log("Loading JSON questionnaire file.");
-		console.log(data);
 		Questionnaire.init(data);
 		displayQuizItem(Questionnaire.firstQuestion());
 	});

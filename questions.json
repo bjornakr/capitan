@@ -101,7 +101,7 @@
     "text": "What is your _favorite_ animal?",
     "response": {
       "type": "textField",
-      "regex": "\\d*",
+      "regex": "\\d+",
       "posttext": "times"
     }
   },
