@@ -7,36 +7,70 @@
       "type": "singleChoice",
       "alternatives": [
         {
-          "value": "1",
-          "text": "Great"
+          "value": 1,
+          "text": "<em>Great!!!</em>"
         },
         {
-          "value": "2",
+          "value": 2,
           "text": "Not so great"
         },
         {
-          "value": "3",
+          "value": 3,
           "text": "Shitty"
+        }
+      ]
+    }
+  },
+  {
+    "variableName": "CBCL011",
+    "label": "Alcohol",
+    "text": "How many units of alcohol<sup>1</sup> do you usually drink when drinking?",
+    "response": {
+      "type": "singleChoice",
+      "alternatives": [
+        {
+          "value": 1,
+          "text": "1-3"
+        },
+        {
+          "value": 2,
+          "text": "4-6"
+        },
+        {
+          "value": 3,
+          "text": "6-99999"
+        }
+      ]
+    },
+    "southText": "<sup>1</sup><em>One unit = 12 gallons of ol' Bud.</em>"
+  },
+
+    {
+    "variableName": "CBCL010",
+    "text": "Can you run as fast as you can?",
+    "response": {
+      "type": "singleChoice",
+      "alternatives": [
+        {
+          "value": 1,
+          "text": "Yes"
+        },
+        {
+          "value": 0,
+          "text": "No"
+        },
+        {
+          "value": 9,
+          "text": "Dunno"
         }
       ]
     },
     "condition": {
-      "left": [
-        "timepoint",
-        "1"
-      ],
-      "op": "AND",
-      "right": {
-        "left": [
-          "group",
-          "1"
-        ],
-        "op": "OR",
-        "right": [
-          "group",
-          "2"
-        ]
-      }
+      "left": {
+        "variableReference": "CBCL001"
+      },
+      "op": "==",
+      "right": 1
     }
   },
   {
@@ -47,18 +81,35 @@
       "type": "singleChoice",
       "alternatives": [
         {
-          "value": "7",
+          "value": 7,
           "text": "You bet'cha!"
         },
         {
-          "value": "5",
+          "value": 5,
           "text": "I shout at the devil sometimes."
         },
         {
-          "value": "1",
+          "value": 1,
           "text": "It's more like squeaking..."
         }
       ]
+    },
+    "condition": {
+      "left": {
+        "left": {
+          "variableReference": "CBCL001"
+        },
+        "op": "==",
+        "right": 1
+      },
+      "op": "AND",
+      "right": {
+        "left": {
+          "variableReference": "CBCL010"
+        },
+        "op": "==",
+        "right": 1
+      }
     }
   },
   {
@@ -69,27 +120,27 @@
       "type": "multiChoice",
       "alternatives": [
         {
-          "value": "1",
+          "value": 1,
           "text": "...fightning for justice?"
         },
         {
-          "value": "2",
+          "value": 2,
           "text": "...testing out your new 3200 baud modem?"
         },
         {
-          "value": "3",
+          "value": 3,
           "text": "...bicycling over some hills?"
         },
         {
-          "value": "4",
+          "value": 4,
           "text": "...biting random people?"
         },
         {
-          "value": "5",
+          "value": 5,
           "text": "...sleeping in the park?"
         },
         {
-          "value": "9",
+          "value": 9,
           "text": "None of the above."
         }
       ]

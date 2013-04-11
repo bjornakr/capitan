@@ -1,8 +1,9 @@
 
 
 var lock = false;
+var responses = {};
 
-function displayQuizItem(question) {
+function displayQuestion(question) {
 	var questionElem = document.getElementById("question");
 	removeChildren(questionElem);
 	var	answersElem = document.getElementById("answers");
@@ -14,6 +15,9 @@ function displayQuizItem(question) {
 		console.log("Inputs: " + question.inputs);
 	}
 	displayHeader(question.text);
+	if (question.southText !== undefined) {
+		displaySouthText(question.southText);
+	}
 
 	if (question.response.type === "singleChoice" || question.response.type === "multiChoice") {
 		displayResponseAlternatives(question);
@@ -32,12 +36,18 @@ function displayHeader(text) {
 	questionElem.innerHTML = textNode;
 }
 
+function displaySouthText(text) {
+	var southTextElem = document.getElementById("southtext");
+	southTextElem.innerHTML = text;
+}
+
 function displayResponseAlternatives(question) {
 	var	answersElem = document.getElementById("answers");
 	for (var i = 0; i < question.response.alternatives.length; i++) {
 		var responseAlternatives = question.response.alternatives[i];
 		var questionNoText = document.createTextNode(responseAlternatives.value);
-		var answerText = document.createTextNode(" " + responseAlternatives.text);
+		var answerText = document.createElement("span");//document.createTextNode(" " + responseAlternatives.text);
+		answerText.innerHTML = " " + responseAlternatives.text;
 		var button = document.createElement("input");
 
 		button.id = "answerButton" + responseAlternatives.value;
@@ -52,11 +62,20 @@ function displayResponseAlternatives(question) {
 		button.name = "answerButton";
 		button.value = responseAlternatives.value;
 
-		if ($.inArray(responseAlternatives.value, question.inputs) !== -1) {
+		if ((question.response.type === "multiChoice" && $.inArray(responseAlternatives.value, question.inputs) !== -1) ||
+			question.response.type === "singleChoice" && responseAlternatives.value === question.inputs) {
 			button.checked = true;
-		}
-		answersElem.appendChild(ulWrapper(questionNoText, button, answerText));
 	}
+	answersElem.appendChild(ulWrapper(questionNoText, button, answerText));
+}
+}
+
+function ulWrapper() {
+	var ulElem = document.createElement("ul");
+	for (var i = 0; i < arguments.length; i++) {
+		ulElem.appendChild(arguments[i]);
+	}
+	return ulElem;
 }
 
 function displayTextField(question) {
@@ -83,15 +102,27 @@ function nextQuestion() {
 		return;
 	}
 	if (Questionnaire.currentQuestion().response.type === QuestionTypes.textField) { // && Questionnaire.currentQuestion().regex) {
-		var regExp = new RegExp(Questionnaire.currentQuestion().response.regex);
-		var matchResult = Questionnaire.currentQuestion().inputs.match(regExp);
-		console.log("Validation: " + matchResult);
-		if (matchResult && Questionnaire.currentQuestion().inputs === matchResult[0]) {
-			console.log("MATCH!!!");
-		}
+		checkRegExp(Questionnaire.currentQuestion());
 	}
-	if (Questionnaire.currentQuestion().inputs && Questionnaire.currentQuestion().inputs.length !== 0 && Questionnaire.currentQuestion() !== Questionnaire.lastQuestion()) {
-		displayQuizItem(Questionnaire.nextQuestion());
+	if (Questionnaire.hasResponse(Questionnaire.currentQuestion())) {
+		responses[Questionnaire.currentQuestion().variableName] = Questionnaire.currentQuestion().inputs;
+		displayQuestion(Questionnaire.nextQuestion());
+	}
+}
+
+function checkRegExp(question) {
+	if (!question.response.regexp) {
+		return true;
+	}
+	var regExp = new RegExp(question.response.regex);
+	var matchResult = question.inputs.match(regExp);
+	console.log("Validation: " + matchResult);
+	if (matchResult && question.inputs === matchResult[0]) {
+		console.log("MATCH!!!");
+		return true;
+	}
+	else {
+		return false;
 	}
 }
 
@@ -100,7 +131,7 @@ function previousQuestion() {
 		return;
 	}
 	if (Questionnaire.currentQuestion() !== Questionnaire.firstQuestion()) {
-		displayQuizItem(Questionnaire.previousQuestion());
+		displayQuestion(Questionnaire.previousQuestion());
 	}
 }
 
@@ -109,49 +140,49 @@ function currentAnswers() {
 	var answerValues = [];
 	for (var i = 0; i < answerButtons.length; i++) {
 		if (answerButtons[i].checked) {
-			answerValues.push(answerButtons[i].value);
+			if (answerButtons[i].type === "checkbox") {
+				answerValues.push(parseInt(answerButtons[i].value));
+			}
+			else if (answerButtons[i].type === "radio") {
+				answerValues = parseInt(answerButtons[i].value);
+				return answerValues;
+			}
 		}
 	}
 	return answerValues;
 }
 
 
- function removeChildren(element) {
- 	while (element.firstChild) {
- 		element.removeChild(element.firstChild);
- 	}
- }
+function removeChildren(element) {
+	while (element.firstChild) {
+		element.removeChild(element.firstChild);
+	}
+}
 
 
- function radioButtonClicked() {
- 	if (lock === true) {
- 		return;
- 	}
+function radioButtonClicked() {
+	if (lock === true) {
+		return;
+	}
 
- 	lock = true;
- 	storeSelectedResponseAlternatives();
+	lock = true;
+	storeSelectedResponseAlternatives();
 
- 	document.getElementById("next").disabled = false;
- 	setTimeout(function() {
- 		lock = false;
- 		nextQuestion();
- 	}, 200);
- }
+	document.getElementById("next").disabled = false;
+	setTimeout(function() {
+		lock = false;
+		nextQuestion();
+	}, 200);
+}
 
- function storeSelectedResponseAlternatives() {
- 	Questionnaire.currentQuestion().inputs = currentAnswers();
- }
+function storeSelectedResponseAlternatives() {
+	Questionnaire.currentQuestion().inputs = currentAnswers();
+}
 
- function ulWrapper() {
- 	var ulElem = document.createElement("ul");
- 	for (var i = 0; i < arguments.length; i++) {
- 		ulElem.appendChild(arguments[i]);
- 	}
- 	return ulElem;
- }
 
- document.getElementById("next").addEventListener("click", nextQuestion, false);
- document.getElementById("previous").addEventListener("click", previousQuestion, false);
+
+document.getElementById("next").addEventListener("click", nextQuestion, false);
+document.getElementById("previous").addEventListener("click", previousQuestion, false);
 
 
 // Keyboard listener
@@ -201,12 +232,12 @@ window.onkeyup = function(event) {
 
 	function leftArrowIsApplicable() {
 		return (responseType === "singleChoice" || responseType === "multiChoice" || responseType === "info") ||
-			(responseType === "textField" && document.getElementById("textField") !== document.activeElement);
+		(responseType === "textField" && document.getElementById("textField") !== document.activeElement);
 	};
 
 	function rightArrowIsApplicable() {
 		return (responseType === "singleChoice" || responseType === "multiChoice") ||
-			(responseType === "textField" && document.getElementById("textField") !== document.activeElement);
+		(responseType === "textField" && document.getElementById("textField") !== document.activeElement);
 	};
 
 	function enterIsApplicable() {
@@ -218,7 +249,7 @@ window.onkeyup = function(event) {
 			answerButton.checked = true;
 			radioButtonClicked();
 		}
-		if (answerButton.type === "checkbox") {
+		else if (answerButton.type === "checkbox") {
 			answerButton.checked = !answerButton.checked;
 			storeSelectedResponseAlternatives();
 		}
@@ -230,6 +261,7 @@ window.onkeyup = function(event) {
 var Questionnaire = (function() {
 	var questions;
 	var currentQuestionNo = 0;
+	var questionHistory = [];
 
 
 	return {
@@ -240,10 +272,22 @@ var Questionnaire = (function() {
 			return questions[currentQuestionNo];
 		},
 		nextQuestion: function() {
-			return questions[++currentQuestionNo];
+			questionHistory.push({
+				question: questions[currentQuestionNo],
+				questionNo: currentQuestionNo
+			});
+			responses[questions[currentQuestionNo].variableName] = questions[currentQuestionNo].inputs;
+			currentQuestionNo++;
+			while (questions[currentQuestionNo].condition !== undefined && !evaluate(questions[currentQuestionNo].condition)) {
+				console.log("Condition: " + evaluate(questions[currentQuestionNo].condition));
+				currentQuestionNo++;
+			}
+			return questions[currentQuestionNo];
 		},
 		previousQuestion: function() {
-			return questions[--currentQuestionNo];
+			var historyItem = questionHistory.pop();
+			currentQuestionNo = historyItem.questionNo;
+			return historyItem.question; //questions[--currentQuestionNo];
 		},
 		firstQuestion: function() {
 			return questions[0];
@@ -253,8 +297,53 @@ var Questionnaire = (function() {
 		},
 		length: function() {
 			return questions.length;
+		},
+		hasResponse: function(question) {
+			if (questions.inputs !== undefined) {
+				return false;
+			}
+			var singleChoiceResponse = question.response.type === QuestionTypes.singleChoice && question.inputs !== null;
+			var multiChoiceResponse = question.response.type === QuestionTypes.multiChoice && question.inputs.length > 0;
+			var textFieldResponse = question.response.type === QuestionTypes.textField && question.inputs !== null && question.inputs.trim() !== "";
+			return singleChoiceResponse || multiChoiceResponse || textFieldResponse;
 		}
-	};
+	}
+
+	function evaluate(element) {
+		if (element === true) {
+			return true;
+		}
+		else if (element === false) {
+			return false;
+		}
+		else {
+			if (element.op === "AND") {
+				return evaluate(element.left) && evaluate(element.right);
+			}
+			else if (element.op === "OR") {
+				return evaluate(element.left) || evaluate(element.right);
+			}
+			else if (element.op === "NOT") {
+				return !evaluate(element.right);
+			}
+			else if (element.op === "==") {
+				return checkEquality(element.left, element.right);
+			}
+			else if (element.op === "!=") {
+				return !checkEquality(element.left, element.right);
+			}
+		}
+	}
+
+	function checkEquality(left, right) {
+		if (left.variableReference) {
+			left = responses[left.variableReference];
+		}
+		if (right.variableReference) {
+			right = responses[right.variableReference];
+		}
+		return left === right;
+	}
 })();
 
 var QuestionTypes = {
@@ -265,18 +354,20 @@ var QuestionTypes = {
 };
 
 
+
 // Init
 $(document).ready(function () {
 	//window.onbeforeunload = function() { return "You work will be lost."; };
 	$.getJSON("http://localhost:8000/questions.json", function(data) {
 		console.log("Loading JSON questionnaire file.");
+		console.log(data);
 		Questionnaire.init(data);
-		displayQuizItem(Questionnaire.firstQuestion());
+		displayQuestion(Questionnaire.firstQuestion());
 	});
 });
 
 jQuery.extend(jQuery.expr[':'], {
-  focus: "a == document.activeElement"
+	focus: "a == document.activeElement"
 });
 
 
