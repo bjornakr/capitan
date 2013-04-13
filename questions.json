@@ -1,8 +1,38 @@
 [
   {
+    "variableName": "FTFY",
+    "label": "Essay",
+    "text": "Please write an essay about regular stuff right here:",
+    "response": {
+      "type": "textArea"
+    }
+  },
+  {
+    "variableName": "CHECKOUT",
+    "text": "Let's sum things up here:<br><br>You wrote: FTFY",
+    "variableReferences": [
+      "FTFY"
+    ],
+    "response": {
+      "type": "info"
+    }
+  },
+  {
+    "variableName": "TTYF",
+    "label": "Times in jail",
+    "text": "How many times have you been in jail?",
+    "response": {
+      "type": "numeric",
+      "min": 0,
+      "max": 10,
+      "leadingText": "Well, about",
+      "trailingText": "times"
+    }
+  },
+  {
     "variableName": "CBCL001",
     "label": "How do you really feel?",
-    "text": "How do you _really_ feel?",
+    "text": "How do you <em>really</em> feel?",
     "response": {
       "type": "singleChoice",
       "alternatives": [
@@ -42,7 +72,7 @@
         }
       ]
     },
-    "southText": "<sup>1</sup><em>One unit = 12 gallons of ol' Bud.</em>"
+    "bottomText": "<span id=\"smallItalic\"><sup>1</sup>One unit = 12 gallons of ol' Bud.</span>"
   },
 
     {
@@ -76,7 +106,7 @@
   {
     "variableName": "CBCL002",
     "label": "Can you screeeaam out loud?",
-    "text": "Can you __screeeaam__ out loud?",
+    "text": "Can you <strong>screeeaam</strong> out loud?",
     "response": {
       "type": "singleChoice",
       "alternatives": [
@@ -149,17 +179,17 @@
   {
     "variableName": "CBCL004",
     "label": "Fav. animal",
-    "text": "What is your _favorite_ animal?",
+    "text": "What is your <em>favorite</em> animal?",
     "response": {
       "type": "textField",
-      "regex": "\\d+",
-      "posttext": "times"
+      "size": 50,
+      "regex": "\\d+"
     }
   },
   {
     "variableName": "CBCLINFO",
     "label": "Infoscreen",
-    "text": "Do you think that I'm _crazy_? Out of my _mind_?\n\nDo you think that I creep out at night & sleep in a phonebooth?\n\n<img src=\"redBooth.jpg\" alt=\"missing image\">",
+    "text": "Do you think that I'm <em>crazy</em>? Out of my <em>mind</em>?<br><br>Do you think that I creep out at night & sleep in a phonebooth?<br><br><img src=\"redBooth.jpg\" alt=\"missing image\">",
     "response": {
       "type": "info"
     }

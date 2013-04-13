@@ -5,3 +5,8 @@ body {
 #question {
 	font-size: 20px;
 }
+
+#smallItalic {
+	font-size: 12px;
+	font-style: "italic";
+}
